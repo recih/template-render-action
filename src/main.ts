@@ -1,19 +1,53 @@
-import * as core from '@actions/core'
-import {wait} from './wait'
+import * as core from "@actions/core";
+import { Options, render, renderFile } from "ejs";
+import { context } from "@actions/github";
+import { exec } from "child_process";
+import { join } from "path";
+
+const renderOptions: Options & { async: false } = {
+  outputFunctionName: "echo",
+  async: false,
+};
 
 async function run(): Promise<void> {
   try {
-    const ms: string = core.getInput('milliseconds')
-    core.debug(`Waiting ${ms} milliseconds ...`) // debug is only output if you set the secret `ACTIONS_STEP_DEBUG` to true
+    const template: string = core.getInput("template");
+    const cmd: string = core.getInput("post-run");
+    const templatePath: string = core.getInput("template-path");
+    const _extInputs: string = core.getInput("ext-inputs");
+    let extInputs: {};
+    try {
+      extInputs = JSON.parse(_extInputs);
+    } catch {
+      extInputs = { text: _extInputs };
+    }
 
-    core.debug(new Date().toTimeString())
-    await wait(parseInt(ms, 10))
-    core.debug(new Date().toTimeString())
+    let resultText: string;
 
-    core.setOutput('time', new Date().toTimeString())
+    const renderContext = { context, require, extInputs };
+
+    if (templatePath) {
+      const fullPath = join(process.env.GITHUB_WORKSPACE || "", templatePath);
+      resultText = await renderFile(fullPath, renderContext, renderOptions);
+    } else {
+      resultText = render(template, renderContext, renderOptions);
+    }
+
+    core.setOutput("content", resultText);
+    if (cmd) {
+      const cmdText = render(cmd, { output: resultText, context });
+      exec(cmdText, function (error, stdout, stderr) {
+        if (error) {
+          console.error(`error: ${error}`);
+          return;
+        }
+        core.info(stdout);
+        core.error(stderr);
+      });
+    }
   } catch (error) {
-    if (error instanceof Error) core.setFailed(error.message)
+    core.setFailed(error.message);
   }
 }
 
-run()
+run();
