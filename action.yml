@@ -1,11 +1,40 @@
-name: 'Your name here'
-description: 'Provide a description here'
-author: 'Your name or organization here'
+name: 'Template Render'
+description: 'render a template'
+author: 'recih'
 inputs:
-  milliseconds: # change this
-    required: true
-    description: 'input description here'
-    default: 'default value if applicable'
+  template-file:
+    required: false
+    description: 'Input template file path. You must specify either a template file or a template string.'
+  template:
+    required: false
+    description: 'Input template string. You must specify either a template file or a template string.'
+  glob:
+    required: false
+    description: |
+      glob mode. You can render all files matching the glob pattern.
+      If true, the `template-file` will be considered as a glob pattern. 
+      `template`/`output-file` will be ignored.
+      `content` field in action output will not be set.
+      The output file name will be the same as the input file name, without the file extension.
+      eg. 'data.json.template' will be rendered to 'data.json'
+    default: 'false'
+  vars:
+    required: false
+    description: 'Input variables. A dictionary of variables to be used in the template. Or specify a .yml/.yaml/.json file path.'
+  engine:
+    required: false
+    description: 'Template engine. Default is ejs.'
+    default: 'ejs'
+  options:
+    required: false
+    description: 'extra render options for the template engine.'
+    default: '{}'
+  output-file:
+    required: false
+    description: 'Output file path. If specified, the rendered template will be written to this file. Caution: If the file already exists, it will be overwritten.'
+outputs:
+  content:
+    description: 'Output content. The rendered template.'
 runs:
-  using: 'node12'
+  using: 'node16'
   main: 'dist/index.js'
