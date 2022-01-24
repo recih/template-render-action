@@ -8,7 +8,10 @@ async function removeResultFiles(globPattern: string) {
   const globber = await glob.create(globPattern);
   for await (const file of globber.globGenerator()) {
     const destFile = file.replace(/\.[^.]+$/, "");
-    await fsPromises.unlink(destFile);
+    const stat = await fsPromises.stat(destFile);
+    if (stat.isFile()) {
+      await fsPromises.unlink(destFile);
+    }
   }
 }
 
