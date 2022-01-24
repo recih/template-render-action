@@ -1,105 +1,101 @@
-<p align="center">
-  <a href="https://github.com/actions/typescript-action/actions"><img alt="typescript-action status" src="https://github.com/actions/typescript-action/workflows/build-test/badge.svg"></a>
-</p>
+# Template Render Action
+[![build-test](https://github.com/recih/template-render-action/actions/workflows/test.yml/badge.svg)](https://github.com/recih/template-render-action/actions/workflows/test.yml)
 
-# Create a JavaScript Action using TypeScript
+A github action to render ejs/mustache template files using github context.
 
-Use this template to bootstrap the creation of a TypeScript action.:rocket:
+This action is inspired by [kikyous/template-action](https://github.com/kikyous/template-action), with some additional features.
 
-This template includes compilation support, tests, a validation workflow, publishing, and versioning guidance.  
+# Input:
+* `template-file`: Input template file path. 
+* `template`: Input template string.
+  * You must specify `template-file` or `template` 
+* `vars`: [optional] Input variables. A dictionary of variables in JSON format to be used in the template. Or specify a `.yml/.yaml/.json` file path.
+* `engine`: [optional] Choose template engine. Default is `ejs`.
+  * Currently, you can choose `ejs` or `mustache`
+* `options`: [optional] A JSON format string of options to be passed to the template engine.
+  * For example, `{pretty: true}`
+* `output-file`: [optional] Output file path.
+  * If not specified, you can get rendered result from the action output with `${{ steps.<step-id>.outputs.content }}`.
+* `glob`: [optional] Glob mode. Default is `false`. If `true`, glob mode is enabled:
+  * `template-file` will be considered as a glob pattern (see [`@actions/glob`](https://github.com/actions/toolkit/tree/master/packages/glob)).
+  * `template`/`output-file` will be ignored.
+  * `content` field in action output will not be set.
+  * The output file name will be the same as the input file name, without the file extension. e.g., `'data.json.template'` will be rendered to `'data.json'`
 
-If you are new, there's also a simpler introduction.  See the [Hello World JavaScript Action](https://github.com/actions/hello-world-javascript-action)
+# Output:
+* `content`: template render result. (Only when glob mode is disabled)
 
-## Create an action from this template
+# Usage
+```yml
+name: Example for basic usage
+on:
+  push
 
-Click the `Use this Template` and provide the new repo details for your action
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: recih/template-render-action@v1
+        id: template
+        with:
+          template: |
+            <% context.payload.commits.forEach(function(c){ %>
+            [✅ <%= c.message %>](<%= c.url %>)\n
+            <% }); %>
+            commiter: <%= context.payload.head_commit.author.name %>
+          vars: |
+            { "name": "${{ steps.stepId.outputs.name }}" }
 
-## Code in Main
-
-> First, you'll need to have a reasonably modern version of `node` handy. This won't work with versions older than 9, for instance.
-
-Install the dependencies  
-```bash
-$ npm install
+      - name: Get the render output
+        run: echo "${{ steps.template.outputs.content }}"
 ```
 
-Build the typescript and package it for distribution
-```bash
-$ npm run build && npm run package
+```yml
+name: Example for glob mode
+on:
+  push
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: recih/template-render-action@v1
+        with:
+          template-file: "**/*.template"
+          glob: true
 ```
 
-Run the tests :heavy_check_mark:  
-```bash
-$ npm test
+# Template syntax
 
- PASS  ./index.test.js
-  ✓ throws invalid number (3ms)
-  ✓ wait 500 ms (504ms)
-  ✓ test runs (95ms)
+* `EJS`: https://github.com/mde/ejs
+* `mustache`: https://github.com/janl/mustache.js
 
-...
+# Render context
+
+Following objects are exposed, and can be used in template file:
+
+* `context`: The [`Context`](https://github.com/actions/toolkit/blob/main/packages/github/src/context.ts) object in [`@actions/github`](https://github.com/actions/toolkit/tree/main/packages/github)
+* `env`: The `process.env` object. You can access the environment variables with `env.<key>`
+
+you can explore `context` use below action
+```yml
+name: Test
+on:
+  push
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: kikyous/template-action@v2.0.0
+        id: template
+        with:
+          template: "<%- JSON.stringify(context, undefined, 2) %>"
+
+      - name: Get the render output
+        run: echo "${{ steps.template.outputs.content }}"
 ```
 
-## Change action.yml
+# TODO
 
-The action.yml defines the inputs and output for your action.
-
-Update the action.yml with your name, description, inputs and outputs for your action.
-
-See the [documentation](https://help.github.com/en/articles/metadata-syntax-for-github-actions)
-
-## Change the Code
-
-Most toolkit and CI/CD operations involve async operations so the action is run in an async function.
-
-```javascript
-import * as core from '@actions/core';
-...
-
-async function run() {
-  try { 
-      ...
-  } 
-  catch (error) {
-    core.setFailed(error.message);
-  }
-}
-
-run()
-```
-
-See the [toolkit documentation](https://github.com/actions/toolkit/blob/master/README.md#packages) for the various packages.
-
-## Publish to a distribution branch
-
-Actions are run from GitHub repos so we will checkin the packed dist folder. 
-
-Then run [ncc](https://github.com/zeit/ncc) and push the results:
-```bash
-$ npm run package
-$ git add dist
-$ git commit -a -m "prod dependencies"
-$ git push origin releases/v1
-```
-
-Note: We recommend using the `--license` option for ncc, which will create a license file for all of the production node modules used in your project.
-
-Your action is now published! :rocket: 
-
-See the [versioning documentation](https://github.com/actions/toolkit/blob/master/docs/action-versioning.md)
-
-## Validate
-
-You can now validate the action by referencing `./` in a workflow in your repo (see [test.yml](.github/workflows/test.yml))
-
-```yaml
-uses: ./
-with:
-  milliseconds: 1000
-```
-
-See the [actions tab](https://github.com/actions/typescript-action/actions) for runs of this action! :rocket:
-
-## Usage:
-
-After testing you can [create a v1 tag](https://github.com/actions/toolkit/blob/master/docs/action-versioning.md) to reference the stable and latest V1 action
+* [ ] Support more template engines
