@@ -6,6 +6,7 @@ import { context } from "@actions/github";
 import * as glob from "@actions/glob";
 import { promises as fsPromises } from "fs";
 import * as ejsRender from "./renderer/ejs";
+import * as mustacheRender from "./renderer/mustache";
 import * as process from "process";
 
 type Renderer = {
@@ -15,6 +16,7 @@ type Renderer = {
 
 const renderers: { [key: string]: Renderer } = {
   ejs: ejsRender,
+  mustache: mustacheRender,
 };
 
 async function loadVars(file: string): Promise<{}> {

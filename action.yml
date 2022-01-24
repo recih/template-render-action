@@ -23,7 +23,7 @@ inputs:
     description: 'Input variables. A dictionary of variables to be used in the template. Or specify a .yml/.yaml/.json file path.'
   engine:
     required: false
-    description: 'Template engine. Default is ejs.'
+    description: 'Template engine. Default is ejs. Currently supported: ejs, mustache.'
     default: 'ejs'
   options:
     required: false
