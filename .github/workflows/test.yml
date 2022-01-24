@@ -29,3 +29,8 @@ jobs:
         with:
           template-file: '__tests__/**/*.ejs'
           glob: true
+          vars: |
+            {
+              "name": "test",
+              "version": "1.0.0"
+            }
