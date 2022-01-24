@@ -1,5 +1,5 @@
-name: 'Template Render'
-description: 'render a template'
+name: 'Template Render Action'
+description: 'A github action to render ejs/mustache template files using github context.'
 author: 'recih'
 inputs:
   template-file:
