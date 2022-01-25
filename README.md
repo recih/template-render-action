@@ -3,7 +3,7 @@
 
 A github action to render ejs/mustache template files using github context.
 
-This action is inspired by [kikyous/template-action](https://github.com/kikyous/template-action), with some additional features.
+This action is inspired by [kikyous/template-action](https://github.com/kikyous/template-action), with some additional features. Thanks to kikyous!
 
 # Input:
 * `template-file`: Input template file path. 
@@ -87,7 +87,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: kikyous/template-action@v2.0.0
+      - uses: recih/template-render-action@v1
         id: template
         with:
           template: "<%- JSON.stringify(context, undefined, 2) %>"
