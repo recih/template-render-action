@@ -36,13 +36,13 @@ async function loadVars(file: string): Promise<{}> {
   }
 }
 
-function getVarsInput(): object {
+async function getVarsInput(): Promise<{}> {
   const vars: string = core.getInput("vars");
   if (vars) {
     try {
       return JSON.parse(vars);
     } catch {
-      return loadVars(vars);
+      return await loadVars(vars);
     }
   } else {
     return {};
@@ -114,7 +114,7 @@ async function run(): Promise<void> {
       throw new Error(`Unsupported template engine: ${engine}`);
     }
     const outputFile: string = core.getInput("output-file");
-    const vars = getVarsInput();
+    const vars = await getVarsInput();
 
     const env = process.env;
     const renderContext = { context, env, ...vars };
