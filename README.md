@@ -1,6 +1,8 @@
 # Template Render Action
 [![build-test](https://github.com/recih/template-render-action/actions/workflows/test.yml/badge.svg)](https://github.com/recih/template-render-action/actions/workflows/test.yml)
 
+This action was originally forked on 9/13/2023 from [recih/template-render-action](https://github.com/recih/template-render-action).
+
 A github action to render ejs/mustache template files using github context.
 
 This action is inspired by [kikyous/template-action](https://github.com/kikyous/template-action), with some additional features. Thanks to kikyous!
@@ -99,3 +101,13 @@ jobs:
 # TODO
 
 * [ ] Support more template engines
+
+## Code of Conduct
+
+This project has adopted the [im-platform Organization's Code of Conduct](https://github.com/im-platform/.github/blob/main/CODE_OF_CONDUCT.md).
+
+## License
+
+Copyright &copy; 2023, Extend Health, LLC. All rights reserved.
+
+No license is offered.
